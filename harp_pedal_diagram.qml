@@ -13,15 +13,17 @@
 // Version 1 by iancboswell September 2012. Contains Harpfont.tff
 // Version 2 by kzh October 2015. Code is a complete rewrite of the plugin.
 // Version 3 by Nicolas Froment 2017, use Bravura text, no external font
+// Version 4 by Joachim Schmitz 2019, port to MuseScore 3
 
-import QtQuick 2.0
-import MuseScore 1.0
-import QtQuick.Layouts 1.0
-import QtQuick.Controls 1.0
-import QtQuick.Dialogs 1.0
+import QtQuick 2.9
+import MuseScore 3.0
+import QtQuick.Layouts 1.3
+import QtQuick.Controls 1.5
+import QtQuick.Dialogs 1.2
 
 MuseScore {
   menuPath: "Plugins.Harp Pedal Diagram"
+  version: "3.0"
   pluginType: "dialog"
   id: pedalDialog
   width: 370
