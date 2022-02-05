@@ -14,6 +14,7 @@
 // Version 2 by kzh October 2015. Code is a complete rewrite of the plugin.
 // Version 3 by Nicolas Froment 2017, use Bravura text, no external font
 // Version 4 by Joachim Schmitz 2019, port to MuseScore 3
+// Version 5 by Trudy Firestone 2021, support updating an existing pedal diagram
 
 import QtQuick 2.9
 import MuseScore 3.0
@@ -37,10 +38,45 @@ MuseScore {
     }
     var cursor = curScore.newCursor();
     cursor.rewind(1); // start of selection
-    if (!cursor.segment) {
+    // If existing pedal diagram is selected, allow editing
+    if (curScore.selection.elements.length == 1 && isPedalDiagram(curScore.selection.elements[0])) {
+      initializeStateBasedOnCurrentElement(curScore.selection.elements[0]);
+    } else if (!cursor.segment) {
       console.log("Quitting: no selection");
       Qt.quit();
     }
+  }
+
+
+  function isPedalDiagram(element)  {
+    if (element.type == Element.STAFF_TEXT) {
+      const elementText = element.text.split('');
+      if (element.text.length == 8) {
+        return elementText.every(function (pedalUnicode, index) {
+           if(index == 3) {
+             return pedalUnicode == "\uE683";
+           } else {
+             return pedalUnicode == "\uE680" || pedalUnicode == "\uE682" || pedalUnicode == "\uE681";
+           }
+        });
+      }
+    }
+  }
+
+  function initializeStateBasedOnCurrentElement(element) {
+    const originalPedalDiagram = element.text;
+    const checkedStates = originalPedalDiagram.split('').reverse().forEach(function (pedalChar, pedalCharIndex) {
+      const buttonIndex = pedalCharIndex > 3 ? pedalCharIndex - 1 : pedalCharIndex;
+      if (pedalCharIndex != 4) {
+        if (pedalChar == "\uE680") {
+          flatRow.buttonList[buttonIndex].checked = true;
+        } else if(pedalChar == "\uE681") {
+          natRow.buttonList[buttonIndex].checked = true;
+        } else if(pedalChar == "\uE682") {
+          sharpRow.buttonList[buttonIndex].checked = true;
+        }
+      }
+    })
   }
 
   function showVals () {
@@ -195,15 +231,21 @@ MuseScore {
   }
 
   function addText () {
-      var cursor = curScore.newCursor();
-      cursor.rewind(1); // start of selection
+      if (curScore.selection.elements.length == 1 && isPedalDiagram(curScore.selection.elements[0])) {
+        const element = curScore.selection.elements[0]
+        element.text = diagram.text;
+        element.fontFace = "Bravura Text";
+      } else {
+        var cursor = curScore.newCursor();
+        cursor.rewind(1); // start of selection
 
-      var myDiag = newElement( Element.STAFF_TEXT );
+        var myDiag = newElement( Element.STAFF_TEXT );
 
-      var myFontSize = qsTr("<font size=\"14\"/>");
-      myDiag.text =  myFontSize + diagram.symText;
-      cursor.add(myDiag);
-
+        myDiag.text =  diagram.text;
+        myDiag.fontFace = "Bravura Text";
+        myDiag.fontSize = 14;
+        cursor.add(myDiag);
+      }
       console.log(curScore)
   }
 
