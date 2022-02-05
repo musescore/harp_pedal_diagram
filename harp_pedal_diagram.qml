@@ -200,8 +200,9 @@ MuseScore {
 
       var myDiag = newElement( Element.STAFF_TEXT );
 
-      var myFontSize = qsTr("<font size=\"14\"/>");
-      myDiag.text =  myFontSize + diagram.symText;
+      myDiag.text =  diagram.text;
+      myDiag.fontFace = "Bravura Text";
+      myDiag.fontSize = 14;
       cursor.add(myDiag);
 
       console.log(curScore)
